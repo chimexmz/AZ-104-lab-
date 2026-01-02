@@ -1,2 +1,2 @@
 # AZ-104-lab-
-Real world project as an Azure administrator
+Real world projects as an Azure administrator
