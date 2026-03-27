@@ -1,21 +1,24 @@
-@description('Azure region for hub networking resources (must match the RG location)')
+@description('Azure region for hub networking resources')
 param location string
 
 @description('Name of the hub Virtual Network')
-param hubVnetName string = 'vnet-hub'
+param hubVnetName string
 
 @description('CIDR address space for the hub Virtual Network')
-param hubAddressPrefix string = '10.0.0.0/16'
+param hubAddressPrefix string
 
-@description('CIDR for Azure Bastion subnet (name must be AzureBastionSubnet)')
-param bastionSubnetPrefix string = '10.0.1.0/26'
+@description('CIDR for Azure Bastion subnet')
+param bastionSubnetPrefix string
 
-@description('CIDR for VPN Gateway subnet (name must be GatewaySubnet)')
-param gatewaySubnetPrefix string = '10.0.2.0/27'
+@description('CIDR for VPN Gateway subnet')
+param gatewaySubnetPrefix string
 
-@description('CIDR for shared services subnet in the hub')
-param sharedServicesSubnetPrefix string = '10.0.10.0/24'
+@description('CIDR for shared services subnet')
+param sharedServicesSubnetPrefix string
 
+// =====================
+// HUB VNET
+// =====================
 resource hubVnet 'Microsoft.Network/virtualNetworks@2023-05-01' = {
   name: hubVnetName
   location: location
@@ -25,29 +28,35 @@ resource hubVnet 'Microsoft.Network/virtualNetworks@2023-05-01' = {
         hubAddressPrefix
       ]
     }
-    subnets: [
-      {
-        name: 'AzureBastionSubnet'
-        properties: {
-          addressPrefix: bastionSubnetPrefix
-        }
-      }
-      {
-        name: 'GatewaySubnet'
-        properties: {
-          addressPrefix: gatewaySubnetPrefix
-        }
-      }
-      {
-        name: 'SharedServicesSubnet'
-        properties: {
-          addressPrefix: sharedServicesSubnetPrefix
-        }
-      }
-    ]
   }
 }
 
+// =====================
+// SUBNETS (CHILD RESOURCES)
+// =====================
+resource bastionSubnet 'Microsoft.Network/virtualNetworks/subnets@2023-05-01' = {
+  name: '${hubVnet.name}/AzureBastionSubnet'
+  properties: {
+    addressPrefix: bastionSubnetPrefix
+  }
+}
+
+resource gatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2023-05-01' = {
+  name: '${hubVnet.name}/GatewaySubnet'
+  properties: {
+    addressPrefix: gatewaySubnetPrefix
+  }
+}
+
+resource sharedServicesSubnet 'Microsoft.Network/virtualNetworks/subnets@2023-05-01' = {
+  name: '${hubVnet.name}/SharedServicesSubnet'
+  properties: {
+    addressPrefix: sharedServicesSubnetPrefix
+  }
+}
+
+// =====================
+// OUTPUTS (MATCHED)
+// =====================
 output hubVnetId string = hubVnet.id
 output hubVnetNameOut string = hubVnet.name
-output hubAddressSpace string = hubAddressPrefix

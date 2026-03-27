@@ -6,14 +6,21 @@ param location string = 'westeurope'
 @description('Hub resource group name')
 param hubRgName string = 'rg-hub-network'
 
-// Create Hub Resource Group
+@description('Spoke resource group name')
+param spokeRgName string = 'rg-spoke-network'
+
+// =====================
+// HUB RESOURCE GROUP
+// =====================
 resource rgHub 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: hubRgName
   location: location
 }
 
-// Deploy Hub Network into the Hub RG
-module hubNetwork 'modules/hub-network.bicep' = {
+// =====================
+// HUB NETWORK
+// =====================
+module hubNetwork './modules/hub-network.bicep' = {
   name: 'hubNetworkDeployment'
   scope: rgHub
   params: {
@@ -26,6 +33,31 @@ module hubNetwork 'modules/hub-network.bicep' = {
   }
 }
 
+// =====================
+// HUB OUTPUTS
+// =====================
 output hubResourceGroup string = rgHub.name
 output hubVnetId string = hubNetwork.outputs.hubVnetId
 output hubVnetName string = hubNetwork.outputs.hubVnetNameOut
+
+// =====================
+// SPOKE RESOURCE GROUP
+// =====================
+resource rgSpoke 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+  name: spokeRgName
+  location: location
+}
+
+// =====================
+// SPOKE NETWORK
+// =====================
+module spokeNetwork './modules/spoke-network.bicep' = {
+  name: 'spokeNetworkDeployment'
+  scope: rgSpoke
+  params: {
+    location: location
+    spokeVnetName: 'vnet-spoke-app'
+    spokeAddressPrefix: '10.1.0.0/16'
+    appSubnetPrefix: '10.1.1.0/24'
+  }
+}

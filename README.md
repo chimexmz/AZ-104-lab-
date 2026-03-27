@@ -96,3 +96,22 @@ az104-contoso-capstone/
       ├─ deploy-dev.yml
       └─ deploy-prod.yml
 
+
+## Phase 1 Platform Foundation – Hub Network ##
+The following core landing zone components have been successfully implemented:
+🔹 Hub Resource Group
+
+A dedicated resource group for platform networking resources
+Scoped deployments to enforce clean separation of concerns
+
+🔹 Hub Virtual Network
+
+Central Hub VNet deployed using Bicep
+Address space planned for long-term scalability
+Hub Address Space: 10.0.0.0/16
+
+🔹 Subnet Design (Best Practices Applied)
+## Hub Network Subnet Design
+
+![Hub Network Subnets](docs/screenshots/hub-subnets.png)
+
